@@ -44,11 +44,7 @@ body::before {
   z-index: -1;
 }
 
-.phone {
-  width: min(420px, 100%);
-  position: relative;
-  z-index: 10;
-}
+.phone { width: min(420px, 100%); position: relative; z-index: 10; }
 
 /* THE DEVICE (Titanium Look) */
 .viewport {
@@ -57,16 +53,10 @@ body::before {
   border-radius: 44px;
   background: #050505;
   isolation: isolate;
-  overflow-y: hidden; /* Hidden scrollbar for auto-scroll cleanliness */
+  overflow-y: hidden; /* No user scroll, auto only */
   
-  /* Bezel */
   border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 
-    inset 0 0 0 1px rgba(255,255,255,0.08),
-    0 0 0 6px #111,
-    0 0 0 7px rgba(255,255,255,0.15),
-    0 30px 60px rgba(0,0,0,0.8),
-    0 0 120px -20px var(--accent-dim);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 0 6px #111, 0 0 0 7px rgba(255,255,255,0.15), 0 30px 60px rgba(0,0,0,0.8), 0 0 120px -20px var(--accent-dim);
 }
 
 .status {
@@ -85,88 +75,95 @@ body::before {
   display: flex; justify-content: space-between;
   padding: 0 20px; pointer-events: none;
 }
-
 .chip {
   background: rgba(20, 20, 20, 0.8);
   border: 1px solid var(--border);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-family: var(--font-mono);
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--accent);
+  padding: 6px 10px; border-radius: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.5px; color: var(--accent);
   backdrop-filter: blur(8px);
 }
 
-.feed {
-  padding: 60px 12px 12px;
-  display: flex; flex-direction: column; gap: 12px;
+/* --- THE GHOST HAND (NEW) --- */
+.ghost-hand {
+  position: absolute;
+  /* Centered horizontally, positioned near bottom */
+  left: 50%; top: 75%;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  
+  /* Digital Touch Look */
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 15px var(--accent-dim);
+  
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 0) scale(0.8);
 }
 
+/* Simulation of a finger touching glass */
+.ghost-hand::after {
+  content: "";
+  position: absolute; inset: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+}
+
+.ghost-hand.swipe-active {
+  animation: swipeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes swipeUp {
+  0% { opacity: 0; transform: translate(-50%, 40px) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, 40px) scale(1); } /* Touch Down */
+  30% { transform: translate(-50%, 40px) scale(0.9); } /* Press */
+  70% { opacity: 1; transform: translate(-50%, -100px) scale(1); } /* Drag Up */
+  100% { opacity: 0; transform: translate(-50%, -140px) scale(0.5); } /* Lift Off */
+}
+
+/* Feed & Posts */
+.feed { padding: 60px 12px 12px; display: flex; flex-direction: column; gap: 12px; }
 .post {
-  --par: 0; --fade: 1;
-  position: relative;
-  height: 580px;
-  border-radius: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  --par: 0; --fade: 1; position: relative; height: 580px;
+  border-radius: 24px; background: var(--surface); border: 1px solid var(--border);
   overflow: hidden;
   transform: scale(calc(1 - (var(--fade) * 0.08)));
   transition: transform 0.1s linear, border-color 0.3s;
 }
-
 .post__stage {
   position: absolute; inset: 16px 16px 200px;
   background: radial-gradient(circle at 50% 50%, var(--surface-highlight), var(--surface));
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  display: grid; place-items: center;
+  border-radius: 16px; border: 1px solid var(--border); display: grid; place-items: center;
 }
 .art { 
-  width: 90%; height: 90%; 
-  transform: translateY(calc(var(--par) * 15px));
+  width: 90%; height: 90%; transform: translateY(calc(var(--par) * 15px));
   opacity: calc(0.5 + (var(--fade) * 0.5));
 }
-
 .post__card {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 30px 24px;
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px;
   background: linear-gradient(to top, var(--surface) 20%, transparent);
 }
-
 .kicker {
-  font-family: var(--font-mono);
-  color: var(--accent);
-  font-size: 10px; margin-bottom: 12px;
-  display: inline-block;
-  border: 1px solid var(--accent-dim);
-  padding: 4px 8px; border-radius: 4px;
-  background: var(--accent-dim);
-  text-transform: uppercase;
+  font-family: var(--font-mono); color: var(--accent); font-size: 10px; margin-bottom: 12px;
+  display: inline-block; border: 1px solid var(--accent-dim); padding: 4px 8px; border-radius: 4px;
+  background: var(--accent-dim); text-transform: uppercase;
 }
-
 .h {
-  font-size: 30px; line-height: 1.1; font-weight: 500;
-  letter-spacing: -1.5px; margin: 0 0 16px; color: #fff;
+  font-size: 30px; line-height: 1.1; font-weight: 500; letter-spacing: -1.5px;
+  margin: 0 0 16px; color: #fff;
 }
-
 .p {
-  font-family: var(--font-main);
-  font-size: 17px; line-height: 1.5;
-  color: #999; max-width: 95%; font-weight: 300;
+  font-family: var(--font-main); font-size: 17px; line-height: 1.5; color: #999;
+  max-width: 95%; font-weight: 300;
 }
-
-/* Vertical Progress */
 .progress {
   position: absolute; right: 6px; top: 120px; bottom: 120px;
-  width: 2px; background: rgba(255,255,255,0.05);
-  border-radius: 99px; overflow: hidden; z-index: 90;
+  width: 2px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; z-index: 90;
 }
 .progress__bar {
-  width: 100%; height: 100%;
-  background: var(--accent);
-  transform-origin: top; transform: scaleY(0);
-  box-shadow: 0 0 12px var(--accent);
+  width: 100%; height: 100%; background: var(--accent);
+  transform-origin: top; transform: scaleY(0); box-shadow: 0 0 12px var(--accent);
 }
-
 .tail { height: 100px; }
