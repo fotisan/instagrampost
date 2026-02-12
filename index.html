@@ -2,17 +2,17 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<title>Evida Studio - Instagram Video Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<title>Evida Studio - Mobile Reel Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
 <style>
-  /* --- IMPORTED STYLES FROM EVIDA STUDIO --- */
+  /* --- 1. VARIABLES (Από το styles.css σου) --- */
   :root {
-    --page-bg: #fffcf8;
-    --page-fg: #1e1b4b;
-    --muted: #475569;
-    --brand: #4338ca;
-    --brand-light: #e0e7ff;
-    --accent: #f97316;
+    --page-bg: #fffcf8;      /* Warm Off-White */
+    --page-fg: #1e1b4b;      /* Midnight Blue */
+    --muted: #475569;        /* Slate Grey */
+    --brand: #4338ca;        /* Indigo */
+    --brand-light: #e0e7ff;  /* Soft Indigo */
+    --accent: #f97316;       /* Warm Orange */
     --border-color: #cbd5e1;
     --card-shadow: 4px 4px 0 rgba(67, 56, 202, 0.08);
     --font-main: 'Inter', sans-serif;
@@ -21,7 +21,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #111; /* Dark background for recording context */
+    background: #111; /* Σκούρο φόντο για να ξεχωρίζει το "κινητό" */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,28 +30,80 @@
     overflow: hidden;
   }
 
-  /* --- INSTAGRAM REEL CONTAINER (9:16) --- */
-  .reel-container {
-    width: 450px; /* Scaled for desktop view */
-    height: 800px;
+  /* --- 2. IPHONE FRAME & CONTAINER --- */
+  .iphone-frame {
+    width: 414px;  /* Πλάτος iPhone 11/XR */
+    height: 850px; /* Ύψος οθόνης */
     background-color: var(--page-bg);
     background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
     background-size: 24px 24px;
     position: relative;
-    overflow: hidden; /* Mask the scrolling content */
-    border-radius: 20px;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    overflow: hidden;
+    border-radius: 40px; /* Στρογγυλεμένες γωνίες οθόνης */
+    box-shadow: 0 0 0 12px #333, 0 0 50px rgba(0,0,0,0.5); /* Εξωτερικό πλαίσιο κινητού */
   }
 
-  /* --- HEADER (Fixed) --- */
-  .reel-header {
+  /* --- 3. STATUS BAR (OPTION A) --- */
+  .status-bar {
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 70px;
+    height: 44px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--page-fg);
+    background: rgba(255, 252, 248, 0.9); /* Ελαφρώς διάφανο */
+    backdrop-filter: blur(5px);
+  }
+
+  /* Notch (Το μαύρο κομμάτι πάνω) */
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 210px;
+    height: 30px;
+    background: #333;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    z-index: 101;
+  }
+
+  .status-right { display: flex; gap: 6px; align-items: center; }
+  
+  /* Battery Icon CSS Only */
+  .battery {
+    width: 24px; height: 11px;
+    border: 1px solid var(--page-fg);
+    border-radius: 3px;
+    position: relative;
+    padding: 1px;
+  }
+  .battery::after {
+    content: ''; position: absolute; right: -3px; top: 3px;
+    width: 2px; height: 3px; background: var(--page-fg);
+    border-radius: 0 1px 1px 0;
+  }
+  .battery-level {
+    width: 100%; height: 100%;
+    background: var(--page-fg);
+    border-radius: 1px;
+  }
+
+  /* --- 4. APP HEADER --- */
+  .app-header {
+    position: absolute;
+    top: 44px; /* Κάτω από το status bar */
+    left: 0; right: 0;
+    height: 60px;
     background: rgba(255, 252, 248, 0.95);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
-    z-index: 10;
+    z-index: 90;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,224 +115,203 @@
   }
   .brand-logo span { color: var(--page-fg); font-weight: 600; }
 
-  /* --- SCROLLING WRAPPER --- */
-  .scroller {
-    width: 100%;
-    /* Animation definition */
-    animation: scrollSequence 18s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-    padding-top: 90px; /* Space for header */
-    padding-bottom: 100px;
+  /* Progress Bar */
+  .progress-line {
+    position: absolute; bottom: 0; left: 0; height: 2px;
+    background: var(--accent);
+    width: 0%;
+    animation: progressFill 19s linear infinite; /* Συντονισμένο με το scroll */
   }
 
-  /* --- SECTIONS --- */
+  /* --- 5. SCROLLING CONTENT --- */
+  .scroller {
+    width: 100%;
+    padding-top: 120px; /* Header + Status Bar space */
+    padding-bottom: 100px;
+    /* Η καρδιά του animation */
+    animation: autoScroll 19s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
   .section {
-    padding: 2rem;
-    min-height: 400px;
+    padding: 1.5rem 2rem;
+    min-height: 450px; /* Εξασφαλίζει ότι κάθε τμήμα πιάνει χώρο */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 2rem;
   }
 
-  /* 1. INTRO */
-  .hero-text {
-    font-size: 2.4rem;
-    font-weight: 800;
-    line-height: 1.1;
-    color: var(--page-fg);
-    margin-bottom: 1rem;
+  /* --- 6. CONTENT STYLES --- */
+  
+  /* Slide 1: Intro */
+  .intro-tag {
+    font-size: 0.8rem; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .intro-tag::before { content:''; width:8px; height:8px; background:var(--accent); border-radius:50%; }
+  
+  .hero-title {
+    font-size: 2.2rem; font-weight: 800; line-height: 1.1;
+    color: var(--page-fg); margin-bottom: 1rem;
   }
   .highlight { color: var(--brand); }
-  .subtitle {
-    font-size: 1.1rem;
-    color: var(--muted);
-    margin-bottom: 2rem;
-  }
+  .hero-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.5; }
 
-  /* 2. EXAMPLES (Cards) */
+  /* Slide 2: Comparison Cards */
   .card {
-    background: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    background: #fff; border: 1px solid var(--border-color);
+    border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem;
     box-shadow: var(--card-shadow);
+  }
+  
+  /* Bad Design */
+  .card.wrong {
+    border-top: 4px solid #ef4444; opacity: 0.9;
     position: relative;
   }
-
-  /* Bad Design Style */
-  .card.wrong {
-    border-top: 4px solid #ef4444;
-    opacity: 0.8;
+  .badge-wrong {
+    background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2;
+    padding: 4px 8px; font-size: 0.7rem; font-weight: 700; border-radius: 4px;
+    text-transform: uppercase; margin-bottom: 8px; display: inline-block;
   }
-  .label-wrong {
-    display: inline-block; padding: 4px 8px; font-weight: 700; font-size: 0.75rem;
-    color: #ef4444; background: #fef2f2; border-radius: 4px; margin-bottom: 10px;
-    text-transform: uppercase;
+  .bad-ui {
+    font-family: 'Times New Roman', serif; text-align: center;
   }
-  .cluttered-content {
-    font-family: "Times New Roman", serif; /* Intentional clash */
-    font-size: 0.9rem;
-    line-height: 1.1;
-    color: #000;
-  }
-  .cluttered-btn {
-    background: linear-gradient(to bottom, red, yellow);
-    color: black; padding: 5px; font-weight: bold; border: 2px solid black;
-    margin-top: 10px; display: inline-block; font-size: 0.7rem;
-    text-shadow: 1px 1px 0 #fff;
+  .bad-btn {
+    background: red; color: yellow; font-weight: bold; border: 2px solid black;
+    padding: 5px 10px; font-size: 0.8rem; margin-top: 5px; display: inline-block;
+    box-shadow: 2px 2px 0 #000;
   }
 
-  /* Good Design Style */
+  /* Good Design */
   .card.right {
     border-top: 4px solid var(--brand);
-    transform: scale(1.02); /* Slight pop */
+    transform: scale(1.03); /* Slight zoom */
+    box-shadow: 0 10px 25px rgba(67, 56, 202, 0.15);
   }
-  .label-right {
-    display: inline-block; padding: 4px 8px; font-weight: 700; font-size: 0.75rem;
-    color: var(--brand); background: var(--brand-light); border-radius: 4px; margin-bottom: 15px;
-    text-transform: uppercase;
+  .badge-right {
+    background: var(--brand-light); color: var(--brand);
+    padding: 4px 8px; font-size: 0.7rem; font-weight: 700; border-radius: 4px;
+    text-transform: uppercase; margin-bottom: 12px; display: inline-block;
   }
-  .clean-content h3 {
-    font-size: 1.1rem; font-weight: 800; color: var(--page-fg); margin-bottom: 0.5rem;
-  }
-  .clean-content p {
-    font-size: 0.9rem; color: var(--muted); line-height: 1.5;
-  }
+  .clean-ui h3 { font-size: 1.1rem; font-weight: 700; color: var(--page-fg); margin-bottom: 4px; }
+  .clean-ui p { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
   .clean-btn {
-    margin-top: 1rem;
+    margin-top: 10px; background: var(--page-fg); color: #fff;
+    padding: 8px 16px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
     display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background: var(--page-fg); color: #fff;
-    border-radius: 6px; font-size: 0.8rem; font-weight: 600;
   }
 
-  /* 3. QUOTE SECTION */
-  .quote-section {
-    text-align: center;
-    background: var(--brand-light);
-    border-radius: 12px;
-    padding: 3rem 2rem;
-    border: 1px solid #c7d2fe;
-    position: relative;
+  /* Slide 3: Quote */
+  .quote-box {
+    text-align: center; background: #fff;
+    border: 1px solid var(--brand-light); border-radius: 16px;
+    padding: 2.5rem 1.5rem; position: relative;
+    box-shadow: 0 4px 20px rgba(67, 56, 202, 0.05);
   }
   .quote-mark {
-    font-size: 4rem; color: var(--brand); opacity: 0.2;
-    position: absolute; top: 0; left: 1rem;
+    font-size: 5rem; color: var(--brand-light); position: absolute;
+    top: -10px; left: 20px; font-family: serif;
   }
   .quote-text {
-    font-size: 1.3rem; font-weight: 700; color: var(--brand);
-    line-height: 1.4; font-style: italic;
-  }
-  .quote-author {
-    margin-top: 1.5rem; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+    font-size: 1.25rem; font-weight: 600; color: var(--brand);
+    font-style: italic; line-height: 1.4; position: relative; z-index: 2;
   }
 
-  /* 4. OUTRO */
-  .outro {
-    text-align: center;
-    height: 600px; /* Fill screen at end */
-  }
-  .cta-text { font-size: 1.2rem; color: var(--page-fg); margin-bottom: 1rem; }
-  .final-logo { font-size: 2rem; margin-bottom: 2rem; }
-
-  /* --- ANIMATION KEYFRAMES --- */
-  /* Sequence:
-     0-10%: Hold Intro
-     15-30%: Scroll to Bad/Good comparison & Hold
-     35-55%: Scroll to Quote & Hold
-     60-80%: Scroll to Outro & Hold
-     100%: Restart
-  */
-  @keyframes scrollSequence {
-    0%, 15% { transform: translateY(0); }
-    
-    20%, 45% { transform: translateY(-580px); } /* Show Comparison */
-    
-    50%, 75% { transform: translateY(-1300px); } /* Show Quote */
-    
-    80%, 95% { transform: translateY(-1800px); } /* Show Outro */
-    
-    100% { transform: translateY(0); } /* Snap back */
+  /* Slide 4: Outro */
+  .outro-box { text-align: center; margin-top: 2rem; }
+  .cta-pill {
+    background: var(--brand); color: #fff; padding: 12px 24px;
+    border-radius: 99px; font-weight: 600; font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3);
+    display: inline-flex; align-items: center; gap: 8px;
   }
 
-  /* Progress Bar at top */
-  .progress-bar {
-    position: absolute; top: 69px; left: 0; height: 3px; background: var(--accent);
-    width: 0%;
-    z-index: 20;
-    animation: progressFill 18s linear infinite;
+  /* --- 7. ANIMATION KEYFRAMES --- */
+  @keyframes autoScroll {
+    0%, 15% { transform: translateY(0); }                 /* Hold Intro */
+    20%, 50% { transform: translateY(-630px); }           /* Show Comparison */
+    55%, 80% { transform: translateY(-1350px); }          /* Show Quote */
+    85%, 95% { transform: translateY(-1800px); }          /* Show Outro */
+    100% { transform: translateY(0); }                    /* Reset */
   }
-  @keyframes progressFill {
-    0% { width: 0%; }
-    100% { width: 100%; }
-  }
+
+  @keyframes progressFill { 0% { width: 0%; } 100% { width: 100%; } }
 
 </style>
 </head>
 <body>
 
-  <div class="reel-container">
-    <div class="reel-header">
-      <div class="brand-logo">Evida <span>Studio</span></div>
+  <div class="iphone-frame">
+    
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-right">
+        <span>5G</span>
+        <div class="battery"><div class="battery-level"></div></div>
+      </div>
     </div>
-    <div class="progress-bar"></div>
+
+    <div class="app-header">
+      <div class="brand-logo">Evida <span>Studio</span></div>
+      <div class="progress-line"></div>
+    </div>
 
     <div class="scroller">
       
       <div class="section">
-        <div style="font-size: 0.9rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
-          Design Philosophy
-        </div>
-        <h1 class="hero-text">
+        <div class="intro-tag">Philosophy</div>
+        <h1 class="hero-title">
           Το Design πρέπει να είναι <span class="highlight">αόρατο</span>.
         </h1>
-        <p class="subtitle">
-          Όταν η "τέχνη" σκοτώνει τη λειτουργικότητα, κάτι κάνουμε λάθος.
+        <p class="hero-sub">
+          Όταν η "τέχνη" σκοτώνει τη λειτουργικότητα, ο designer έχει αποτύχει.
         </p>
-        <div style="font-size:2rem; animation: bounce 2s infinite;">↓</div>
+        <div style="margin-top:2rem; font-size:2rem; color:var(--brand); animation: bounce 2s infinite;">↓</div>
       </div>
 
       <div class="section">
         <div class="card wrong">
-          <span class="label-wrong">❌ Λάθος: Θόρυβος</span>
-          <div class="cluttered-content">
-            <h1>WELCOME TO MY SITE!</h1>
-            <p>Click here for services!!! We offer <b>best</b> design.</p>
-            <div class="cluttered-btn">CLICK ME NOW</div>
-            <p style="font-size:0.7rem; color:blue;">*Terms apply</p>
+          <span class="badge-wrong">❌ Λαθος: Θορυβος</span>
+          <div class="bad-ui">
+            <h2 style="font-size:1.2rem; color:blue;">WELCOME!!!</h2>
+            <p>We are the <b>BEST</b>. <br>Click for more info &gt;&gt;</p>
+            <div class="bad-btn">CLICK HERE</div>
           </div>
         </div>
 
         <div class="card right">
-          <span class="label-right">✅ Σωστό: Μήνυμα</span>
-          <div class="clean-content">
+          <span class="badge-right">✅ Σωστο: Καθαροτητα</span>
+          <div class="clean-ui">
             <h3>Digital Strategy</h3>
-            <p>We build assets that convert visitors into clients.</p>
-            <div class="clean-btn">View Services</div>
+            <p>Helping professionals build trust online.</p>
+            <div class="clean-btn">View Case Studies</div>
           </div>
         </div>
-        <p style="text-align:center; font-size: 0.9rem; color: var(--muted); margin-top:1rem;">
-          Ο επισκέπτης δεν θέλει να θαυμάσει το site.<br>Θέλει να βρει τη λύση.
+        <p style="text-align:center; font-size:0.85rem; color:var(--muted); margin-top:1.5rem;">
+          Ο χρήστης δεν θέλει να ψάχνει.<br>Θέλει να βρίσκει.
         </p>
       </div>
 
       <div class="section">
-        <div class="quote-section">
+        <div class="quote-box">
           <span class="quote-mark">“</span>
           <p class="quote-text">
-            Αν ο επισκέπτης πει <br>'τι ωραία γραμματοσειρά'<br> αλλά δεν διαβάσει το κείμενο...<br><br>
-            ο designer απέτυχε.
+            Αν ο επισκέπτης πει <br>"τι ωραία γραμματοσειρά"<br> αλλά δεν διαβάσει το κείμενο...<br><br>
+            τότε το design απέτυχε.
           </p>
-          <div class="quote-author">— The Evida Philosophy</div>
         </div>
       </div>
 
-      <div class="section outro">
-        <div class="brand-logo final-logo">Evida <span>Studio</span></div>
-        <p class="cta-text">Συμφωνείτε;<br>Γράψτε μου στα σχόλια.</p>
-        <div style="display:inline-block; padding: 10px 20px; background:var(--brand); color:#fff; border-radius:99px; font-weight:600;">
-          Save this post
+      <div class="section" style="justify-content: flex-start; padding-top: 4rem;">
+        <div class="outro-box">
+          <div class="brand-logo" style="font-size:1.5rem; margin-bottom:1rem;">Evida <span>Studio</span></div>
+          <p class="hero-sub" style="margin-bottom:2rem;">Less Noise. More Signal.</p>
+          
+          <div class="cta-pill">
+            Follow for more
+          </div>
         </div>
       </div>
 
@@ -288,11 +319,11 @@
   </div>
 
   <style>
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-    40% {transform: translateY(-10px);}
-    60% {transform: translateY(-5px);}
-  }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-10px);}
+      60% {transform: translateY(-5px);}
+    }
   </style>
 
 </body>
