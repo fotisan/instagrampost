@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Evida Studio - Final Reel (Compact Outro)</title>
+<title>Evida Studio - Final Reel (Separated Outro)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* --- 1. VARIABLES --- */
@@ -80,20 +80,22 @@
 
   .progress-line {
     position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent);
-    width: 0%; animation: progressFill 20s linear infinite;
+    width: 0%; animation: progressFill 22s linear infinite; /* Adjusted to 22s */
   }
 
   /* --- 4. SCROLLING CONTAINER --- */
   .scroller {
     width: 100%;
-    animation: autoScroll 20s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: autoScroll 22s cubic-bezier(0.45, 0, 0.55, 1) infinite; /* Adjusted to 22s */
     padding-top: 104px;
   }
 
   .section {
     padding: 0 2rem;
     display: flex; flex-direction: column;
-    min-height: 500px; 
+    height: 600px; /* Forced height to ensure separation */
+    justify-content: center;
+    /* border-bottom: 1px dashed rgba(0,0,0,0.1); Debugging line - removed */
   }
 
   /* --- 5. CONTENT STYLES --- */
@@ -122,8 +124,8 @@
 
   /* COMPARISON */
   .section-compare {
-    justify-content: center;
     gap: 1.5rem;
+    justify-content: center;
   }
 
   .card {
@@ -163,8 +165,11 @@
     display: inline-block;
   }
 
-  /* QUOTE */
-  .section-quote { justify-content: center; }
+  /* QUOTE (Stands Alone) */
+  .section-quote { 
+    justify-content: center;
+    position: relative;
+  }
   
   .quote-box {
     text-align: center; background: #fff;
@@ -172,7 +177,7 @@
     padding: 3rem 1.5rem 3rem 1.5rem;
     position: relative;
     box-shadow: 0 4px 20px rgba(67, 56, 202, 0.05);
-    animation: zoomEffect 20s linear infinite;
+    animation: zoomEffect 22s linear infinite;
     transform-origin: center;
   }
   
@@ -185,18 +190,13 @@
     font-style: italic; line-height: 1.4; position: relative; z-index: 2;
   }
   .quote-handle {
-    position: absolute;
-    bottom: 1rem;
-    right: 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--brand);
+    position: absolute; bottom: 1rem; right: 1.5rem;
+    font-size: 0.9rem; font-weight: 600; color: var(--brand);
   }
 
-  /* OUTRO & ICONS (UPDATED) */
+  /* OUTRO (Separate Screen) */
   .section-outro {
-    justify-content: flex-start;
-    padding-top: 1rem; /* CHANGED: Much closer to the previous section */
+    justify-content: center; /* Centered in its own view */
     align-items: center;
     text-align: center;
   }
@@ -217,17 +217,26 @@
 
   /* --- 6. ANIMATIONS --- */
   @keyframes autoScroll {
+    /* Phase 1: Hero (0-4s) */
     0%, 15% { transform: translateY(0); }
-    18%, 48% { transform: translateY(-460px); } 
-    55%, 82% { transform: translateY(-1050px); }
-    88%, 96% { transform: translateY(-1600px); }
+    
+    /* Phase 2: Comparison (4-9s) */
+    18%, 40% { transform: translateY(-600px); } 
+    
+    /* Phase 3: Quote ALONE (10-16s) */
+    45%, 70% { transform: translateY(-1200px); }
+    
+    /* Phase 4: Outro ALONE (17-22s) */
+    75%, 95% { transform: translateY(-1800px); }
+    
+    /* Reset */
     100% { transform: translateY(0); }
   }
 
   @keyframes zoomEffect {
-    0%, 55% { transform: scale(1); }
-    60%, 78% { transform: scale(1.15); }
-    82%, 100% { transform: scale(1); }
+    0%, 45% { transform: scale(1); }
+    50%, 65% { transform: scale(1.1); } /* Zoom only when Quote is visible */
+    70%, 100% { transform: scale(1); }
   }
 
   @keyframes progressFill { 0% { width: 0%; } 100% { width: 100%; } }
